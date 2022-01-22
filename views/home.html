@@ -1,0 +1,191 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>Socket.IO chat</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <style>
+        #messages {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        #messages li {
+            padding: 5px 10px;
+        }
+
+        #messages li:nth-child(odd) {
+            background: #eee;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container-fluid" id='chat_box'>
+        <div class="row ">
+            <div class="col-md-3 border">
+                <h1> <span id='cnt_client'></span></h1>
+                <%= name %>
+            </div>
+            <div class="col-md-9 border">
+                <h1>Chat Group</h1>
+          
+            </div>
+        </div>
+        <div class="row ">
+            <div class="col-md-3 border" style="overflow-y:  scroll; height: 600px;">
+                <ul id="connection" class="ul">
+                    <% for(var user of result) { %>
+                        <% if (user.user != name) { %>
+                    <li id='<%= user.user %>' class="users"><%= user.user %></a></li>
+                    <% } %>
+                    <% } %>
+                </ul>
+            </div>
+            <div class="col-md-9 border msg_box"  style="overflow-y:  scroll; height: 600px;" >
+                <ul id="messages" class="list-group"></ul>
+            </div>
+        </div>
+        <div class="row">
+            <!-- <div class="col-md-3 border">
+
+            </div>
+            <div class="col-md-9 border">
+                <form action="#" id='chatform'>
+                    <div class="row">
+                        <div class="col-md-9" >
+                            <input id="m" autocomplete="off" class="form-control" placeholder="Enter Message" />
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-primary btn-block">Send</button>
+                        </div>
+                    </div>
+                </form>
+            </div> -->
+        </div>
+    </div>
+
+</body>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script>
+
+    $(function () {
+
+        var socket = io();
+
+        socket.on('showMsg', function (data) {
+            $('#messages').append($('<li>').text(data.user + " - " + data.msg+" - " + data.date));
+
+            $('#cnt_client').html("Connection -" + local_users.length);
+            $('#connection').empty()
+            for (user of local_users) {
+                $('#connection').append($('<li>').text(user));
+            }
+
+            //$(".msg_box").animate({ scrollTop: $(document).height() }, "slow");
+            
+        });
+
+        $('.users').click(function () {
+            alert($(this).attr('id'));
+            socket.emit('ChatGrp', {'touser':$(this).attr('id')});   //call the function in index.js with msg
+        });
+
+       socket.on('goIndex',function(){
+            window.location.href='/index.html';
+        });
+
+        $('#chatform').submit(function (e) {
+            e.preventDefault();
+            var d=new Date()
+            dt="at."+ d.getHours()+":"+ d.getMinutes()
+            socket.emit('ChatMsg', { 'msg': $('#m').val() ,'date': dt});   //call the function in index.js with msg
+            $('#m').val('');  //empty msg box
+        });
+
+
+       
+
+    });
+
+
+
+
+         /* 
+        var user;
+        var local_users = []
+        $('#chat_box').hide();  //empty msg box
+
+   
+        socket.on('setUser', function (data) {
+            user = data.username
+            local_users = data.users
+
+            $('#login_box').hide();
+            $('#chat_box').show();  //empty msg box
+
+        });
+
+        socket.on('userExists', function () {
+            alert('Username Exists');
+            $('#login_box').show();
+            $('#chat_box').hide();  //empty msg box
+        });
+
+
+          $('#loginform').submit(function (e) {
+            e.preventDefault();
+            socket.emit('SetUserName', $('#username').val());   //call the function in index.js with msg  
+            $('#login_box').hide();
+            $('#chat_box').show();
+            return false;
+        });
+
+
+         socket.on('brodcast', function (cnt_client) {
+              $('#cnt_client').html(cnt_client.desc)
+          });
+  
+  
+          $('form').submit(function (e) {
+              e.preventDefault();
+              socket.emit('ChatMsg', $('#m').val());   //call the function in index.js with msg
+              $('#m').val('');  //empty msg box
+              return false;
+          });
+  
+          socket.on('ChatMsg', function (msg) {
+              $('#messages').append($('<li>').text(msg));
+          });
+  
+        socket.on('newclientconnect', function (data) {
+            $('#cnt_client').html(data.cnt_client);
+            if (data.users != []) {
+                $('#connection').empty();
+                for (user of data.users) {
+
+                    if(!($('#connection').find(user))){
+                    $('#connection').append($('<li>').text(user));
+                    }
+                }
+            }
+            else {
+                alert('username already exists!')
+                $('#login_box').show();
+            }
+        })*/
+</script>
+
+
+
+</html>
+
+
+
